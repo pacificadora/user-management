@@ -9,7 +9,7 @@ import { ConfigService } from "@nestjs/config";
 import { AuthPayloadDto } from "./dto/auth.dto";
 import { JwtService } from "@nestjs/jwt";
 import type { LoginResponse } from "./dto/returnLogin.dto";
-// import { JwtService } from "@nestjs/jwt";
+import { UserConstants } from "./constants/user.constants";
 
 @Injectable()
 export class UsersService {
@@ -55,10 +55,10 @@ export class UsersService {
     async signUp(data: CreateUserDto): Promise<Partial<UsersEntity|null>>{
         try {   
             const isValidPhone = this.isValidPhoneNumber(data.mobile);
-            if(!isValidPhone) throw new BadRequestException('Invalid Mobile')
+            if(!isValidPhone) throw new BadRequestException(UserConstants.INVALID_MOBILE)
 
             const isAlreadyExists = await this.usersRepository.getUserByMobile(data.mobile);
-            if(isAlreadyExists) throw new BadRequestException('User Already Exists with given Phone number');
+            if(isAlreadyExists) throw new BadRequestException(UserConstants.ALREADY_EXISTS);
 
             const createdUser = await this.usersRepository.createUser({
                 ...data,
@@ -76,13 +76,13 @@ export class UsersService {
     async loginUser(credentials: LoginUserDto): Promise<LoginResponse> {
         try {
             const isValidPhone = this.isValidPhoneNumber(credentials.mobile);
-            if(!isValidPhone) throw new BadRequestException('Invalid Mobile')
+            if(!isValidPhone) throw new BadRequestException(UserConstants.INVALID_MOBILE)
 
             const user = await this.usersRepository.getUserByMobile(credentials.mobile);
-            if(!user) throw new NotFoundException('User Not Found With Given Number, try with another number');
+            if(!user) throw new NotFoundException(UserConstants.USER_NOT_FOUND);
 
             const isMatched = await bcrypt.compare(credentials.password, user.password);
-            if (!isMatched) throw new BadRequestException('Incorrect Password');
+            if (!isMatched) throw new BadRequestException(UserConstants.WRONG_PASSWORD);
 
             const payload: AuthPayloadDto = {
                 id: user.id,
