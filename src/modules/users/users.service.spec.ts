@@ -16,7 +16,7 @@ describe('UsersService', () => {
     id: 1,
     name: 'John Doe',
     mobile: '9876543210',
-    password: "hashedPassword",
+    password: '',
     status: false,
     ipAddress: '0.0.0.0',
     lastLogin: new Date('2025-03-19 06:35:07.794013'),
@@ -34,6 +34,8 @@ describe('UsersService', () => {
   };
 
   beforeEach(async () => {
+    mockUser.password = await bcrypt.hash('password123', 10);
+    console.log('Hashed Password:', mockUser.password); 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -96,7 +98,6 @@ describe('UsersService', () => {
 
     it('should successfully create a user and return it', async () => {
       jest.spyOn(usersRepository, 'getUserByMobile').mockResolvedValue(null);
-      jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashedPassword');
 
       const result = await usersService.signUp({
         name: 'John',
@@ -129,7 +130,7 @@ describe('UsersService', () => {
 
     it('should return user with token on successful login', async () => {
       jest.spyOn(usersRepository, 'getUserByMobile').mockResolvedValue(mockUser);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
+      // jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
 
       const result = await usersService.loginUser({
         mobile: '9876543210',
