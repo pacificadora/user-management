@@ -76,15 +76,12 @@ export class UsersService {
     async loginUser(credentials: LoginUserDto): Promise<LoginResponse> {
         try {
             const isValidPhone = this.isValidPhoneNumber(credentials.mobile);
-            console.log(isValidPhone)
             if(!isValidPhone) throw new BadRequestException('Invalid Mobile')
 
             const user = await this.usersRepository.getUserByMobile(credentials.mobile);
-            console.log(user)
             if(!user) throw new NotFoundException('User Not Found With Given Number, try with another number');
 
             const isMatched = await bcrypt.compare(credentials.password, user.password);
-            console.log('isMatched:', credentials.password);
             if (!isMatched) throw new BadRequestException('Incorrect Password');
 
             const payload: AuthPayloadDto = {

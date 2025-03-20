@@ -20,9 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy){
     }
 
     async validate(@Req() req: any){
-        console.log("yaha aaya")
         const { id, name, mobile, exp } = req;
-        console.log(id)
         try {
             if (Date.now() > exp * 1000) throw new UnauthorizedException('Token Expired');
             const userDetails = await this.usersService.getUserByMobile(mobile);
